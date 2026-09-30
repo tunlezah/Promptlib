@@ -1,0 +1,6 @@
+{
+  "name": "security-review-kit",
+  "version": "0.3.0",
+  "description": "Security code review command, secret-blocking hook and secure coding rules in one plugin.",
+  "author": { "name": "Mark" }
+}

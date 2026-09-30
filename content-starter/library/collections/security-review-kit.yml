@@ -1,0 +1,15 @@
+id: security-review-kit
+title: Security review kit
+description: Everything for reviewing code and dependencies with an assistant, from a one-off review prompt to rules, a skill and a workflow you can run every sprint. Start with the prompt; adopt the rules once the team trusts the output.
+audience: Developers and security engineers.
+order: 2
+items:
+  - security-code-review
+  - secure-coding-rules
+  - threat-model-brainstorm
+  - threat-model
+  - dependency-audit
+  - cve-triage
+  - vuln-triage-workflow
+  - block-secrets-commit
+  - security-review-kit-plugin

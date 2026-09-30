@@ -1,0 +1,15 @@
+id: claude-code-setup
+title: Set up Claude Code for a new repository
+description: Rules, commands, agents and hooks to drop into a fresh repository so the assistant follows your conventions from the first session. Install in the order listed; each takes under a minute.
+audience: Engineers using Claude Code or Cursor.
+order: 3
+items:
+  - python-style
+  - commit-conventions
+  - secure-coding-rules
+  - review-pr
+  - explain-file
+  - code-reviewer
+  - format-on-save
+  - block-secrets-commit
+  - filesystem-mcp

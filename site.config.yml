@@ -1,0 +1,80 @@
+# Prompt Library — site configuration.
+# Every value here can be overridden by an environment variable at build time (see README "Configuration").
+# Strings may contain ${VAR}; the value of the environment variable VAR is substituted when the site is built.
+
+site:
+  name: Prompt Library
+  tagline: Prompts, skills and rules that work. Copy one and go.
+  # Public URL of the deployed site, used for absolute links in feeds and the sitemap.
+  # Override with SITE_URL. On GitLab Pages the pipeline sets this from CI_PAGES_URL.
+  url: ""
+  # Path the site is served under. "/" for a root domain, "/prompt-library/" for a project Pages site.
+  # Override with SITE_BASE_PATH. On GitLab Pages the pipeline derives this from CI_PAGES_URL.
+  base_path: /
+  logo: assets/logo.svg
+  # Licence shown when an artefact does not set one.
+  default_license: CC0-1.0
+
+# A banner rendered above the navigation on every page. Empty text hides it.
+# Intended for an environment or classification marking. Keep it to one line.
+header:
+  text: ""                    # e.g. "INTERNAL — DO NOT DISTRIBUTE"   (override: HEADER_TEXT)
+  background: "#7a1f1f"       # (override: HEADER_BACKGROUND)
+  foreground: "#ffffff"       # (override: HEADER_FOREGROUND)
+  link: ""                    # optional URL the banner text links to  (override: HEADER_LINK)
+  sticky: true
+  repeat_at_bottom: false
+
+# Where the prompts live. The content repo is separate from this app repo.
+content:
+  # build-time: the CI pipeline clones the content repo and this build reads it from disk.
+  # runtime:    the built site fetches index.json and bodies from the GitLab repository files API on load
+  #             (public projects only; needs CORS from the GitLab host).
+  mode: build-time
+  host: https://gitlab.com                  # (override: CONTENT_HOST)
+  project: your-group/prompt-library-content # path with namespace  (override: CONTENT_PROJECT)
+  branch: main                              # (override: CONTENT_BRANCH)
+  root: library                             # folder inside the content repo  (override: CONTENT_ROOT)
+  # Local path (or the CI checkout) of the content repo. Defaults to the bundled starter so the app builds
+  # standalone. Override with CONTENT_PATH=../my-content-repo. `npm run fetch-content` fills this from a Git URL.
+  path: content-starter
+  # Templates for links back to GitLab. {action} is blob | edit | raw | new; {path} is relative to the repo root.
+  web_url_template: "{host}/{project}/-/{action}/{branch}/{path}"
+  issue_url_template: "{host}/{project}/-/issues/new?issue[title]={title}&issue[description]={description}"
+  # Runtime mode only: GitLab API for raw files. {project_encoded} and {path_encoded} are URL-encoded.
+  api_url_template: "{host}/api/v4/projects/{project_encoded}/repository/files/{path_encoded}/raw?ref={branch}"
+  limits:
+    max_body_bytes: 65536       # per entry file body
+    max_folder_bytes: 2097152   # per folder artefact, all files
+    max_file_count: 200         # per folder artefact
+
+features:
+  favourites: true
+  open_in_links: true
+  send_to_ai: true
+  feedback_links: true
+  rss: true
+
+# AI endpoints the site may send prompts to. Leave the list empty to hide the feature.
+# Requests go only to these base_urls; the page's Content-Security-Policy connect-src is set to exactly these origins.
+ai:
+  endpoints: []
+  # Example (see docs/AI-GATEWAY.md for the gateway-side CORS and mTLS requirements):
+  # endpoints:
+  #   - id: internal-gateway
+  #     label: Internal LLM gateway
+  #     base_url: https://llm.internal.example/v1   # OpenAI-compatible chat completions
+  #     api_style: openai-chat                      # openai-chat | openai-responses | anthropic-messages | ollama
+  #     auth: mtls                                  # mtls | bearer | none
+  #     headers:
+  #       X-Requested-By: prompt-library
+  #       X-Team: "${AI_TEAM_HEADER}"
+  #     models:
+  #       - id: gemma-4-27b
+  #         label: Gemma 4 27B
+  #         default: true
+  #       - id: qwen3-coder
+  #         label: Qwen3 Coder
+  #     defaults: { temperature: 0.2, max_tokens: 2048 }
+  #     stream: true
+  #     timeout_seconds: 120

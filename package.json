@@ -1,0 +1,36 @@
+{
+  "name": "prompt-library",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static catalogue of AI prompts, system prompts, skills, rules, agents, commands, hooks and MCP configs. Built on Node, deployed to GitLab Pages.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "validate": "node scripts/validate.js",
+    "build": "node scripts/build.js",
+    "dev": "node scripts/dev.js --watch",
+    "serve": "node scripts/dev.js --no-build",
+    "fetch-content": "node scripts/fetch-content.js",
+    "test": "npm run test:unit && npm run test:build",
+    "test:unit": "node --test \"tests/unit/**/*.test.js\"",
+    "test:build": "node --test \"tests/build/**/*.test.js\"",
+    "test:e2e": "playwright test",
+    "test:all": "npm test && npm run test:e2e",
+    "ci": "npm run validate && npm run build && npm test"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "dompurify": "^3.2.6",
+    "fflate": "^0.8.2",
+    "highlight.js": "^11.11.1",
+    "js-yaml": "^4.1.0",
+    "markdown-it": "^14.1.0",
+    "minisearch": "^7.1.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}

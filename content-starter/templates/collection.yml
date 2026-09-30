@@ -1,0 +1,10 @@
+# Copy to library/collections/<id>.yml
+id: my-collection
+title: My collection
+description: What these artefacts have in common and the order to use them in.
+audience: Who this is for.
+# start_here: true              # exactly one collection may set this
+order: 10
+items:
+  - some-artefact-id
+  - another-artefact-id

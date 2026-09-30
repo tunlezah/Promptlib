@@ -1,0 +1,13 @@
+id: start-here
+title: Start here
+description: Six things that work the first time, whatever assistant you have. Copy one, paste it into any chat app, and add your own text where it says to. No setup, no jargon.
+audience: People who have never written a prompt.
+start_here: true
+order: 1
+items:
+  - explain-this-error
+  - plain-english-rewrite
+  - summarise-advisory
+  - write-commit-message
+  - meeting-notes-to-actions
+  - patient-tutor

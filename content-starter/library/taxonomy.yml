@@ -1,0 +1,224 @@
+# Closed lists the site filters on. Unknown ids in an artefact's frontmatter fail the build.
+# Keep labels short: they appear on chips and badges.
+
+models:
+  - id: any
+    label: Any model
+    vendor: ""
+    icon: any
+    description: Model-agnostic. Works with whatever assistant or model you have.
+  - id: claude
+    label: Claude
+    vendor: Anthropic
+    icon: claude
+  - id: gpt
+    label: GPT
+    vendor: OpenAI
+    icon: gpt
+  - id: gemini
+    label: Gemini
+    vendor: Google
+    icon: gemini
+  - id: llama
+    label: Llama
+    vendor: Meta
+    icon: llama
+  - id: gemma
+    label: Gemma
+    vendor: Google
+    icon: gemma
+  - id: mistral
+    label: Mistral
+    vendor: Mistral AI
+    icon: mistral
+  - id: deepseek
+    label: DeepSeek
+    vendor: DeepSeek
+    icon: deepseek
+  - id: qwen
+    label: Qwen
+    vendor: Alibaba
+    icon: qwen
+  - id: local
+    label: Local / offline
+    vendor: ""
+    icon: local
+    description: Small models run on your own machine (Ollama, LM Studio, llama.cpp).
+
+assistants:
+  - id: claude-code
+    label: Claude Code
+    vendor: Anthropic
+    icon: terminal
+    docs_url: https://code.claude.com/docs
+    install:
+      skill: .claude/skills/{id}/
+      rule: CLAUDE.md
+      agent: .claude/agents/{id}.md
+      command: .claude/commands/{id}.md
+      hook: .claude/settings.json
+      mcp: .mcp.json
+      plugin: .claude/plugins/{id}/
+      workflow: .claude/commands/{id}.md
+    install_note: Restart Claude Code or run /reload after adding files. Hooks and MCP entries are merged into the JSON file, not appended.
+  - id: cursor
+    label: Cursor
+    vendor: Anysphere
+    icon: cursor
+    docs_url: https://cursor.com/docs
+    open_url_template: "cursor://anysphere.cursor-deeplink/prompt?text={prompt}"
+    open_url_max_length: 8000
+    install:
+      skill: .cursor/skills/{id}/
+      rule: .cursor/rules/{id}.mdc
+      agent: .cursor/agents/{id}.md
+      command: .cursor/commands/{id}.md
+      hook: .cursor/hooks.json
+      mcp: .cursor/mcp.json
+      plugin: .cursor/plugins/{id}/
+      workflow: .cursor/commands/{id}.md
+    install_note: Cursor picks up new rules and commands without a restart.
+  - id: github-copilot
+    label: GitHub Copilot
+    vendor: GitHub
+    icon: copilot
+    docs_url: https://docs.github.com/copilot
+    install:
+      rule: .github/copilot-instructions.md
+      agent: .github/agents/{id}.md
+      command: .github/prompts/{id}.prompt.md
+      skill: .github/skills/{id}/
+      mcp: .vscode/mcp.json
+    install_note: Prompt files need the chat.promptFiles setting enabled in VS Code.
+  - id: codex-cli
+    label: Codex CLI
+    vendor: OpenAI
+    icon: terminal
+    docs_url: https://developers.openai.com/codex
+    install:
+      rule: AGENTS.md
+      skill: .codex/skills/{id}/
+      command: .codex/prompts/{id}.md
+      mcp: .codex/config.toml
+    install_note: Codex reads AGENTS.md from the repository root and each parent folder.
+  - id: windsurf
+    label: Windsurf
+    vendor: Codeium
+    icon: windsurf
+    install:
+      rule: .windsurf/rules/{id}.md
+      skill: .windsurf/skills/{id}/
+      command: .windsurf/workflows/{id}.md
+      workflow: .windsurf/workflows/{id}.md
+      mcp: ~/.codeium/windsurf/mcp_config.json
+  - id: aider
+    label: Aider
+    vendor: Aider
+    icon: terminal
+    install:
+      rule: CONVENTIONS.md
+      system-prompt: .aider.conf.yml
+    install_note: Add the file to .aider.conf.yml under read so it is loaded every session.
+  - id: continue
+    label: Continue
+    vendor: Continue
+    icon: continue
+    install:
+      rule: .continue/rules/{id}.md
+      command: .continue/prompts/{id}.prompt
+      mcp: .continue/mcpServers/{id}.yaml
+  - id: cline
+    label: Cline
+    vendor: Cline
+    icon: cline
+    install:
+      rule: .clinerules/{id}.md
+      workflow: .clinerules/workflows/{id}.md
+      mcp: cline_mcp_settings.json
+  - id: gemini-cli
+    label: Gemini CLI
+    vendor: Google
+    icon: terminal
+    install:
+      rule: GEMINI.md
+      command: .gemini/commands/{id}.toml
+      mcp: .gemini/settings.json
+      skill: .gemini/skills/{id}/
+  - id: open-webui
+    label: Open WebUI / Ollama
+    vendor: ""
+    icon: local
+    install:
+      system-prompt: Workspace → Models → System prompt
+      prompt: Workspace → Prompts
+    install_note: Paste the text into the Open WebUI workspace. Prompts saved there are triggered with a slash command.
+  - id: chat-app
+    label: Chat app (any)
+    vendor: ""
+    icon: chat
+    description: Any chat interface. Paste the prompt into the message box.
+  - id: claude-web
+    label: Claude (web)
+    vendor: Anthropic
+    icon: claude
+    open_url_template: "https://claude.ai/new?q={prompt}"
+    open_url_max_length: 8000
+  - id: chatgpt-web
+    label: ChatGPT (web)
+    vendor: OpenAI
+    icon: gpt
+    open_url_template: "https://chatgpt.com/?q={prompt}"
+    open_url_max_length: 8000
+
+categories:
+  - id: getting-started
+    label: Getting started
+    description: First prompts that work out of the box.
+    order: 1
+  - id: writing
+    label: Writing
+    description: Rewrite, summarise, explain and draft text.
+    order: 2
+  - id: coding
+    label: Coding
+    description: Write, review, test and refactor code.
+    order: 3
+  - id: code-review
+    label: Code review
+    description: Review changes for quality and defects.
+    order: 4
+  - id: security
+    label: Security
+    description: Threat modelling, secure coding, vulnerability triage.
+    order: 5
+  - id: testing
+    label: Testing
+    description: Generate and improve tests.
+    order: 6
+  - id: agents
+    label: Agents & tooling
+    description: "Configure coding assistants: skills, rules, hooks, MCP servers."
+    order: 7
+  - id: productivity
+    label: Productivity
+    description: Meetings, notes, planning.
+    order: 8
+  - id: learning
+    label: Learning
+    description: Tutors and explainers.
+    order: 9
+
+roles:
+  - id: everyone
+    label: Everyone
+    description: No technical background needed.
+  - id: developer
+    label: Developer
+  - id: security
+    label: Security engineer
+  - id: analyst
+    label: Analyst
+  - id: writer
+    label: Writer
+  - id: manager
+    label: Manager
