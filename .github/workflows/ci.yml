@@ -1,0 +1,81 @@
+# Development CI on GitHub: validate, build, unit + build tests, browser tests. Optional GitHub Pages preview.
+# Production deploys happen on GitLab (see .gitlab-ci.yml). The build here uses the bundled content-starter
+# unless CONTENT_GIT_URL is set as a repository variable/secret.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      CONTENT_GIT_URL: ${{ secrets.CONTENT_GIT_URL }}
+      CONTENT_GIT_REF: ${{ vars.CONTENT_GIT_REF }}
+      SITE_BASE_PATH: ${{ vars.SITE_BASE_PATH }}
+      HEADER_TEXT: ${{ vars.HEADER_TEXT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Fetch content repo (only when CONTENT_GIT_URL is configured)
+        if: env.CONTENT_GIT_URL != ''
+        run: node scripts/fetch-content.js
+      - run: npm run validate
+      - run: npm run build
+      - run: npm test
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          CI: "true"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: public/
+          retention-days: 7
+
+  # Optional preview on GitHub Pages. Enable by setting the repository variable DEPLOY_GITHUB_PAGES to "true"
+  # and choosing "GitHub Actions" as the Pages source. SITE_BASE_PATH should be "/<repo-name>/" for a project page.
+  pages-preview:
+    if: github.ref == 'refs/heads/main' && vars.DEPLOY_GITHUB_PAGES == 'true'
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: public
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - id: deployment
+        uses: actions/deploy-pages@v4

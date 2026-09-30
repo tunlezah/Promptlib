@@ -1,0 +1,17 @@
+# Who reviews what. Adjust the handles. Syntax: https://docs.gitlab.com/user/project/codeowners/
+# Enable "Require approval from code owners" on the default branch to enforce it.
+
+* @prompt-library-maintainers
+
+[Security artefacts] @security-team
+/library/rules/secure-coding-rules.md
+/library/skills/threat-model/
+/library/skills/dependency-audit/
+/library/hooks/
+/library/workflows/vuln-triage-workflow.md
+/library/prompts/cve-triage.md
+/library/prompts/security-code-review.md
+
+[Taxonomy and schema]
+/library/taxonomy.yml @prompt-library-maintainers
+/schema/ @prompt-library-maintainers

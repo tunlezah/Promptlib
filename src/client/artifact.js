@@ -4,6 +4,8 @@ import { storage, recents, KEYS } from './store.js';
 import { assemble } from './shared/variables.js';
 import { installCommands } from './shared/install.js';
 import { ICONS } from './shared/icons.js';
+import { isRuntime, fetchText, bodyOf } from './runtime.js';
+import { tokenize } from './shared/variables.js';
 
 const dataEl = document.getElementById('artifact-data');
 if (dataEl) init(JSON.parse(dataEl.textContent));
@@ -137,6 +139,26 @@ function init(data) {
   for (const b of document.querySelectorAll('[data-shell]')) b.addEventListener('click', () => { shell = b.dataset.shell; for (const x of document.querySelectorAll('[data-shell]')) x.setAttribute('aria-checked', String(x === b)); renderInstall(); });
   renderInstall();
   for (const b of document.querySelectorAll('[data-open-install]')) b.addEventListener('click', () => { const d = document.getElementById('install'); if (d) d.open = true; });
+
+  /* ---- Runtime mode: show the latest body from the repository ---- */
+  if (isRuntime && data.path) {
+    fetchText(data.path).then((text) => {
+      const latest = bodyOf(text);
+      if (latest === data.body) return;
+      data.body = latest;
+      const block = document.querySelector('#prompt-body .prompt__variant[data-variant=""] pre code');
+      if (!block) return;
+      block.className = `hljs language-${data.format} hljs--plain`;
+      block.textContent = '';
+      for (const t of tokenize(latest)) {
+        if (t.type === 'text') block.append(t.value);
+        else { const span = el('span', { class: 'var', 'data-var': t.name, text: t.raw }); block.append(span); const v = varsByName.get(t.name); if (v) makeField(v, span); }
+      }
+      syncFallback();
+      const note = el('p', { class: 'notice notice--info', text: 'Showing the latest version from the content repository; the built page was older.' });
+      document.getElementById('prompt-body').before(note);
+    }).catch(() => { /* the built body stays */ });
+  }
 
   /* ---- Send to AI ---- */
   const panel = document.getElementById('ai-panel');

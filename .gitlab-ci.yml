@@ -1,0 +1,79 @@
+# Production pipeline: validate the content repo, build the site, publish to GitLab Pages.
+# All logic lives in package scripts; this file only wires them to GitLab.
+#
+# Required CI/CD variables on THIS project (Settings → CI/CD → Variables):
+#   CONTENT_PROJECT   path with namespace of the content repo, e.g. team/prompt-library-content
+#                     (or set content.project in site.config.yml)
+#   CONTENT_HOST      only if the content repo is on another GitLab instance (default: this one)
+#   CONTENT_BRANCH    default: main
+# Authentication for the clone, one of:
+#   (a) nothing: CI_JOB_TOKEN is used. On the CONTENT project enable
+#       Settings → CI/CD → Job token permissions → "Add project" and add this project. (recommended)
+#   (b) CONTENT_DEPLOY_TOKEN (+ CONTENT_DEPLOY_TOKEN_USER): a read_repository deploy token, masked.
+# Optional:
+#   SITE_URL / SITE_BASE_PATH  derived from CI_PAGES_URL when unset
+#   HEADER_TEXT, HEADER_BACKGROUND, HEADER_FOREGROUND  the marking banner
+#   AI_* any ${VAR} referenced from site.config.yml (e.g. AI_TEAM_HEADER)
+
+image: node:22
+
+stages: [validate, build, deploy]
+
+variables:
+  CONTENT_PATH: .content-cache/content
+  CONTENT_HOST: $CI_SERVER_URL
+  npm_config_cache: $CI_PROJECT_DIR/.npm
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+
+default:
+  cache:
+    key:
+      files: [package-lock.json]
+    paths: [.npm/]
+  before_script:
+    - npm ci --prefer-offline --no-audit --no-fund
+
+# Runs on every push and merge request: schema/taxonomy validation of the content repo at its default branch,
+# plus the app's own unit tests.
+validate:
+  stage: validate
+  script:
+    - node scripts/fetch-content.js
+    - npm run validate
+    - npm run test:unit
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+
+build:
+  stage: build
+  script:
+    - node scripts/fetch-content.js
+    - npm run build
+    - npm run test:build
+  artifacts:
+    paths: [public/]
+    expire_in: 1 week
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "pipeline"      # triggered by the content repo after a merge
+    - if: $CI_PIPELINE_SOURCE == "trigger"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+# GitLab Pages deploys whatever the job named `pages` leaves in public/.
+pages:
+  stage: deploy
+  script:
+    - echo "Publishing $(find public -name index.html | wc -l) pages to $CI_PAGES_URL"
+  artifacts:
+    paths: [public/]
+  publish: public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "pipeline" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "trigger"
+    - if: $CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  environment:
+    name: production
+    url: $CI_PAGES_URL

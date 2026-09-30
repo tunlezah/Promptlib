@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/prompt-library/schema/artifact.schema.json",
+  "title": "Prompt Library artefact frontmatter",
+  "description": "Frontmatter for every entry file in the content repository (prompts, system prompts, skills, rules, agents, commands, hooks, MCP configs, plugins and workflows).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "summary", "type", "models", "categories", "difficulty", "version", "created", "updated", "status"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable slug, unique across the repository. Lowercase letters, digits and hyphens.",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,79}$"
+    },
+    "title": { "type": "string", "minLength": 3, "maxLength": 120 },
+    "summary": {
+      "type": "string",
+      "description": "One-paragraph plain-English description of what this does and when to use it.",
+      "minLength": 20,
+      "maxLength": 600
+    },
+    "type": {
+      "type": "string",
+      "enum": ["prompt", "system-prompt", "skill", "rule", "agent", "command", "hook", "mcp", "plugin", "workflow"]
+    },
+    "format": {
+      "type": "string",
+      "description": "How the body should be highlighted and which file extension downloads use.",
+      "enum": ["markdown", "xml", "json", "yaml", "text"],
+      "default": "markdown"
+    },
+    "models": {
+      "type": "array",
+      "description": "Model ids from taxonomy.yml. 'any' means model-agnostic.",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "assistants": {
+      "type": "array",
+      "description": "Coding assistant or host app ids from taxonomy.yml. Omit for chat-only artefacts.",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+      "uniqueItems": true
+    },
+    "categories": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+      "minItems": 1,
+      "maxItems": 5,
+      "uniqueItems": true
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 40 },
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "roles": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+      "uniqueItems": true
+    },
+    "difficulty": { "type": "string", "enum": ["beginner", "intermediate", "advanced"] },
+    "variables": {
+      "type": "array",
+      "description": "Fill-in fields. Each appears in the body as {{name}}.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "description"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,39}$" },
+          "description": { "type": "string", "minLength": 1, "maxLength": 300 },
+          "default": { "type": ["string", "number", "boolean"] },
+          "options": {
+            "type": "array",
+            "description": "When present the UI renders a picker instead of a text box.",
+            "items": { "type": ["string", "number"] },
+            "minItems": 2,
+            "uniqueItems": true
+          },
+          "multiline": { "type": "boolean", "description": "Render a text area instead of a single-line box." }
+        }
+      }
+    },
+    "requires": {
+      "type": "array",
+      "description": "Prerequisites shown in a 'Needs' box above the prompt.",
+      "items": { "type": "string", "minLength": 1, "maxLength": 120 },
+      "uniqueItems": true
+    },
+    "example_output": {
+      "type": "string",
+      "description": "Path, relative to the entry file's folder, of a sample response rendered as Markdown."
+    },
+    "why_it_works": { "type": "string", "maxLength": 800 },
+    "variants": {
+      "type": "array",
+      "description": "Per-target overrides of the body. 'for' is a model or assistant id.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["for", "file"],
+        "properties": {
+          "for": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "file": { "type": "string" },
+          "label": { "type": "string", "maxLength": 40 }
+        }
+      }
+    },
+    "install_frontmatter": {
+      "type": "object",
+      "description": "Frontmatter written to the installed/downloaded file (for example name and description for a SKILL.md, or description/globs/alwaysApply for a Cursor rule). Defaults are derived from id and summary for skills, agents and commands.",
+      "additionalProperties": true
+    },
+    "author": { "type": "string", "maxLength": 80 },
+    "source": { "type": "string", "format": "uri", "description": "Attribution: where the artefact came from." },
+    "license": { "type": "string", "maxLength": 60 },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "created": { "type": "string", "format": "date" },
+    "updated": { "type": "string", "format": "date" },
+    "status": { "type": "string", "enum": ["draft", "reviewed", "deprecated"] },
+    "tested_on": { "type": "array", "items": { "type": "string", "maxLength": 80 }, "uniqueItems": true },
+    "related": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+      "uniqueItems": true
+    },
+    "changelog": {
+      "type": "array",
+      "description": "Used when Git history is not available at build time.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["version", "date", "note"],
+        "properties": {
+          "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+          "date": { "type": "string", "format": "date" },
+          "note": { "type": "string", "maxLength": 200 }
+        }
+      }
+    }
+  }
+}

@@ -12,8 +12,9 @@ export function page({ model, assets, title, description = '', body, bodyClass =
     endpoints: cfg.ai.endpoints.map((e) => ({ id: e.id, label: e.label, base_url: e.base_url, api_style: e.api_style, auth: e.auth, headers: e.headers, models: e.models, defaults: e.defaults, stream: e.stream, timeout_seconds: e.timeout_seconds })),
     systemPrompts: model.artifacts.filter((a) => a.type === 'system-prompt').map((a) => ({ id: a.id, title: a.title }))
   } : null;
+  const runtime = cfg.content.mode === 'runtime' && model.links.enabled ? { host: cfg.content.host, project: cfg.content.project, branch: cfg.content.branch, root: cfg.content.root, api_url_template: cfg.content.api_url_template } : null;
   return `<!doctype html>
-<html lang="en" data-base="${model.base}"${hasBanner ? ` data-has-banner="${hasBanner}"` : ''}>
+<html lang="en" data-base="${model.base}"${hasBanner ? ` data-has-banner="${hasBanner}"` : ''}${runtime ? ' data-content-mode="runtime"' : ''}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -47,6 +48,7 @@ ${cfg.header.repeat_at_bottom ? banner(model, { bottom: true }) : ''}
 ${shortcutsDialog()}
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 ${aiConfig ? `<script type="application/json" id="ai-config">${jsonForScript(aiConfig)}</script>` : ''}
+${runtime ? `<script type="application/json" id="content-config">${jsonForScript(runtime)}</script>` : ''}
 </body>
 </html>
 `;

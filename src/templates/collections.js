@@ -25,6 +25,7 @@ export function collectionPage(model, assets, c) {
       <span class="section__sub">${c.artifacts.length} artefacts, in order.</span>
     </div>
   </div>
+  <h2 class="visually-hidden">Artefacts, in order</h2>
   <ol class="ordered-cards" aria-label="Artefacts in ${c.title}">
     ${c.artifacts.map((a, i) => html`<li><ul class="cards" data-view="list">${raw(renderCard(a, { ...ctx, index: i }))}</ul></li>`)}
   </ol>

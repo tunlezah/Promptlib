@@ -59,7 +59,7 @@ export function artifactPage(model, assets, a) {
   const defaultText = assemble(a.body, a.variables, {});
   const openIn = model.cfg.features.open_in_links ? model.openInAssistants : [];
   const data = {
-    id: a.id, title: a.title, type: a.type, format: a.format, body: a.body, variables: a.variables,
+    id: a.id, title: a.title, type: a.type, format: a.format, body: a.body, variables: a.variables, path: a.path,
     variants: a.variants.map((v) => ({ for: v.for, label: v.label, body: v.body })),
     isFolder: a.isFolder, downloadName: a.downloadName, downloadUrl: a.downloadUrl, zipUrl: a.zipUrl,
     installTargets: a.installTargets.map(({ assistant, label, path, isFolder, note }) => ({ assistant, label, path, isFolder, note })),

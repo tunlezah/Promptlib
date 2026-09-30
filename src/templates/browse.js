@@ -49,6 +49,7 @@ export function browsePage(model, assets, { axis = '', value = '' } = {}) {
     </div>
   </div>
   <div id="results-region" aria-live="polite" aria-busy="false">
+    <h2 class="visually-hidden">Results</h2>
     ${sorted.length ? cardList(sorted, model, { id: 'results', label: 'Results' }) : html`<ul class="cards" id="results" data-view="grid" hidden></ul>${emptyState({ title: 'Nothing here yet', text: `No artefacts are tagged ${heading.toLowerCase()} yet. Browse everything, or contribute the first one.`, actions: [{ href: u('browse/'), label: 'Browse everything', primary: true }, { href: u('contribute/'), label: 'Contribute' }] })}`}
     <p class="results-note" id="results-note"></p>
   </div>

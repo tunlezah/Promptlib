@@ -71,5 +71,7 @@ export function sitemapXml(model, pagePaths) {
 }
 
 export function robotsTxt(model) {
-  return `User-agent: *\nAllow: /\nSitemap: ${abs(model, `${model.base}sitemap.xml`)}\n`;
+  // The Sitemap directive must be an absolute URL, so it is only written when site.url is known.
+  const sitemap = model.cfg.site.url ? `Sitemap: ${abs(model, `${model.base}sitemap.xml`)}\n` : '';
+  return `User-agent: *\nAllow: /\n${sitemap}`;
 }

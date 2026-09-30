@@ -150,7 +150,7 @@ export function toIndexJson(model, { buildId }) {
     generated: model.now.toISOString(),
     build_id: buildId,
     site: { name: model.cfg.site.name, url: model.cfg.site.url, base_path: model.base },
-    content: { host: model.cfg.content.host, project: model.cfg.content.project, branch: model.cfg.content.branch, root: model.cfg.content.root },
+    content: { mode: model.cfg.content.mode, host: model.cfg.content.host, project: model.cfg.content.project, branch: model.cfg.content.branch, root: model.cfg.content.root },
     taxonomy: {
       models: model.axes.model, assistants: model.axes.assistant.map(({ open_url_template, open_url_max_length, ...a }) => a),
       categories: model.axes.category, roles: model.axes.role, types: model.axes.type, difficulties: model.axes.difficulty, statuses: model.axes.status

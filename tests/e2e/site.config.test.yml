@@ -1,0 +1,49 @@
+# Configuration used only by the browser tests: a sub-path base, a banner, and a same-origin mock AI endpoint.
+site:
+  name: Prompt Library (test)
+  tagline: Prompts, skills and rules that work. Copy one and go.
+  url: http://127.0.0.1:4180/lib
+  base_path: /lib/
+header:
+  text: TEST ENVIRONMENT
+  background: "#7a1f1f"
+  foreground: "#ffffff"
+  sticky: true
+  repeat_at_bottom: true
+content:
+  host: https://gitlab.example.com
+  project: team/prompt-content
+  branch: main
+  root: library
+  path: content-starter
+features:
+  favourites: true
+  open_in_links: true
+  send_to_ai: true
+  feedback_links: true
+  rss: true
+ai:
+  endpoints:
+    - id: mock
+      label: Mock gateway
+      base_url: http://127.0.0.1:4180/mock-ai/v1
+      api_style: openai-chat
+      auth: none
+      headers:
+        X-Requested-By: prompt-library
+      models:
+        - id: mock-model
+          label: Mock model
+          default: true
+        - id: other-model
+          label: Other model
+      defaults: { temperature: 0.2, max_tokens: 256 }
+      stream: true
+      timeout_seconds: 20
+    - id: mock-anthropic
+      label: Mock Anthropic-style
+      base_url: http://127.0.0.1:4180/mock-anthropic/v1
+      api_style: anthropic-messages
+      auth: bearer
+      models:
+        - id: claude-mock

@@ -1,0 +1,57 @@
+# Content repo pipeline: validate every merge request, and rebuild the site after a merge.
+#
+# Required CI/CD variables on THIS project:
+#   APP_PROJECT   path with namespace of the site (app) repo, e.g. team/prompt-library   (for the trigger)
+# Optional:
+#   APP_REPO_URL  clone URL of the app repo if it is not on this GitLab instance (default: built from APP_PROJECT)
+#   APP_BRANCH    default: main
+#
+# The app project must allow this project's job token: on the APP project,
+# Settings → CI/CD → Job token permissions → Add project → this project. That covers both the clone in
+# `validate` and the downstream `trigger` after a merge.
+
+image: node:22
+
+stages: [validate, publish]
+
+variables:
+  APP_BRANCH: main
+  npm_config_cache: $CI_PROJECT_DIR/.npm
+
+validate:
+  stage: validate
+  cache:
+    key: app-npm
+    paths: [.npm/]
+  script:
+    - |
+      set -e
+      URL="${APP_REPO_URL:-${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}/${APP_PROJECT}.git}"
+      git clone --quiet --depth 1 --branch "$APP_BRANCH" "$URL" .app
+      cd .app && npm ci --prefer-offline --no-audit --no-fund
+      CONTENT_PATH="$CI_PROJECT_DIR" npm run validate -- --check-links
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH
+
+# After a merge to the default branch, run the app pipeline so the site republishes within minutes.
+publish_site:
+  stage: publish
+  trigger:
+    project: $APP_PROJECT
+    branch: $APP_BRANCH
+    strategy: depend
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Alternative when multi-project pipelines are not available: a pipeline trigger token.
+# Create one on the app project (Settings → CI/CD → Pipeline trigger tokens), store it here as APP_TRIGGER_TOKEN
+# (masked), delete the `publish_site` job above and use this one instead.
+# publish_site_by_token:
+#   stage: publish
+#   image: curlimages/curl:latest
+#   script:
+#     - curl --fail --silent --show-error -X POST -F "token=$APP_TRIGGER_TOKEN" -F "ref=$APP_BRANCH"
+#         "$CI_API_V4_URL/projects/$(echo -n "$APP_PROJECT" | sed 's|/|%2F|g')/trigger/pipeline"
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

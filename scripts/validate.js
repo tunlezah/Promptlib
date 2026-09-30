@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 // Validates the content repo. Exit code 1 on any error.
-//   node scripts/validate.js [--check-links] [--strict-links] [--json] [--content <path>]
+//   node scripts/validate.js [--check-links] [--strict-links] [--json] [--content <path>] [--write-index <file>]
+// --write-index writes the catalogue (same shape as the site's index.json) so a content repo can publish it for runtime mode.
 import path from 'node:path';
 import { loadConfig, ConfigError } from './lib/config.js';
 import { loadContent } from './lib/content.js';
 import { validateContent, checkExternalLinks, formatIssue } from './lib/validate.js';
+import { buildModel, toIndexJson } from './lib/model.js';
+import fs from 'node:fs';
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
@@ -32,6 +35,13 @@ async function main() {
       const issue = { file: f.file, field: f.field, message: `link ${f.url} could not be reached (${f.status})` };
       (flag('--strict-links') ? result.errors : result.warnings).push(issue);
     }
+  }
+  if (opt('--write-index') && result.errors.length === 0) {
+    const model = buildModel(content, cfg);
+    const file = path.resolve(opt('--write-index'));
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, JSON.stringify(toIndexJson(model, { buildId: 'content-index' })));
+    if (!flag('--json')) console.log(`✔ wrote ${path.relative(process.cwd(), file)}`);
   }
   if (flag('--json')) {
     console.log(JSON.stringify({ ok: result.errors.length === 0, ...result, links }, null, 2));
