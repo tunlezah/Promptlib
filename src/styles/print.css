@@ -1,0 +1,14 @@
+@media print {
+  :root { --bg: #fff; --fg: #000; --fg-2: #222; --fg-3: #444; --border: #bbb; --code-bg: #f3f3f3; }
+  .site-header, .site-footer, .filter-bar, .prompt__toolbar .actions, .artifact__actions, .ai-panel, .toast, .skip-link, .card__actions, .prompt__fallback, .install-tabs, .var-legend button { display: none !important; }
+  .banner { position: static !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; border: 1px solid #000; }
+  .banner--bottom { display: block !important; }
+  .banner--sticky { display: block !important; }
+  body { font-size: 11pt; }
+  a { color: #000; }
+  .artifact-layout { grid-template-columns: 1fr; }
+  .prompt, .section-card, .aside-card { border-color: #999; break-inside: avoid; }
+  .prompt__body pre { white-space: pre-wrap; }
+  .var-field { border: 1px solid #000; }
+  details:not([open]) > *:not(summary) { display: none; }
+}
